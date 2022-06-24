@@ -1,0 +1,27 @@
+{
+    "id": "BA0045C8",
+    "path": "C:/DesarrollosGitHub/RegresionLineal/Normalidad.R",
+    "project_path": "Normalidad.R",
+    "type": "r_source",
+    "hash": "3068099301",
+    "contents": "",
+    "dirty": false,
+    "created": 1655922663278.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "60,86",
+        "scrollLine": "54"
+    },
+    "folds": "75|38|87|2|\n",
+    "lastKnownWriteTime": 1656025006,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1656027003658,
+    "read_only": false,
+    "read_only_alternatives": []
+}

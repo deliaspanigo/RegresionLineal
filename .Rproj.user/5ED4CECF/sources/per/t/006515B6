@@ -1,0 +1,27 @@
+{
+    "id": "006515B6",
+    "path": "C:/DesarrollosGitHub/RegresionLineal/CorrelacionPearson.R",
+    "project_path": "CorrelacionPearson.R",
+    "type": "r_source",
+    "hash": "69608428",
+    "contents": "",
+    "dirty": false,
+    "created": 1656005952867.0,
+    "source_on_save": false,
+    "relative_order": 3,
+    "properties": {
+        "tempName": "Untitled1",
+        "source_window_id": "",
+        "Source": "Source",
+        "cursorPosition": "69,39",
+        "scrollLine": "127"
+    },
+    "folds": "80|38|92|2|\n",
+    "lastKnownWriteTime": 1656036141,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1656036141755,
+    "read_only": false,
+    "read_only_alternatives": []
+}
