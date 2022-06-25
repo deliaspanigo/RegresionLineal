@@ -64,7 +64,7 @@ RScience.TestNormalidad02 <- function(base = NULL,
 
 
   # Sentencia General
-  sentencia_general <- "stats::shapiro.test(na.omit(base[,_the_var_]))"
+  sentencia_general <- "stats::shapiro.test(x = na.omit(base[,_the_var_]))"
 
   reemplazo <- paste0("'", nombre_columna, "'")
   sentencia_salida <- gsub("_the_var_", reemplazo, sentencia_general)
@@ -87,6 +87,7 @@ RScience.TestNormalidad02 <- function(base = NULL,
   data_original <- as.data.frame(data_original)
   data_original[,1] <-  as.numeric(as.character(data_original[,1]))
   data_original[,2] <-  as.numeric(as.character(data_original[,2]))
+  data_original <- cbind(nombre_columna, orden_columna, letra_columna, data_original)
 
   # Separamos algun objeto que otro
   valor_p_original <- data_original$p.value
@@ -112,7 +113,7 @@ RScience.TestNormalidad02 <- function(base = NULL,
                                       frase_mayor = frase_mayor,
                                       frase_igual = frase_igual,
                                       frase_menor = frase_menor,
-                                      rotulos = la_variable)
+                                      rotulos = nombre_columna)
 
 
   data_completa <- data.frame(nombre_columna,
@@ -154,7 +155,7 @@ RScience.TestNormalidad02 <- function(base = NULL,
   data_completa$`Estadistico W` <- round2(data_completa$`Estadistico W`, decimales)
 
   # Tabla Resumen
-  seleccion_resumen <- c(1, 2, 4, 5, 6, 9, 12, 13, 14, 17)
+  seleccion_resumen <- c(1, 2, 3, 4, 5, 6, 9, 12, 13, 14, 17)
 
   data_resumen <- data_completa[seleccion_resumen]
 
@@ -162,20 +163,66 @@ RScience.TestNormalidad02 <- function(base = NULL,
   armado_referencia <- data_completa[,c(1,2,3)]
 
 
-  salida <- list(armado_referencia, data_completa, data_resumen, data_original, test_normalidad_var)
-  names(salida) <- c("Referencias", "Tabla Completa", "Tabla Resumen", "Tabla Original", "Test Normalidad")
+  salida <- list(armado_referencia, data_completa, data_resumen, data_original,
+                 test_normalidad_var)
+  names(salida) <- c("Referencias", "Tabla Completa", "Tabla Resumen",
+                     "Tabla Original", "Test Normalidad")
   return(salida)
 
 }
 
 
 
+RScience.TestNormalidad <- function(base = NULL,
+                                    columnas_seleccionadas = NULL,
+                                    alfa = 0.05,
+                                    decimales = 4,
+                                    corte = 0.001) {
+parte01 <- NULL
+parte02 <- NULL
+parte03 <- NULL
+parte04 <- NULL
+parte05 <- list()
 
-#for(n in 1:ncol(base)){
-  RScience.TestNormalidad02(base,
-                            variable  = 1,
+columna_orden <- c(1:length(columnas_seleccionadas))
+
+for(i in seq_along(columnas_seleccionadas)){
+
+
+  nuevo <-   RScience.TestNormalidad02(base,
+                            variable  = columnas_seleccionadas[i],
                             decimales = 4,
                             alfa = 0.05,
                             corte = 0.001)
-#}
 
+  parte01 <- rbind(parte01, nuevo[[1]])
+  parte02 <- rbind(parte02, nuevo[[2]])
+  parte03 <- rbind(parte03, nuevo[[3]])
+  parte04 <- rbind(parte04, nuevo[[4]])
+  parte05[[i]] <- nuevo[[5]]
+
+}
+
+parte01 <- cbind(columna_orden, parte01)
+parte02 <- cbind(columna_orden, parte02)
+parte03 <- cbind(columna_orden, parte03)
+parte04 <- cbind(columna_orden, parte04)
+
+colnames(parte01)[1] <- "Orden Analisis"
+colnames(parte02)[1] <- "Orden Analisis"
+colnames(parte03)[1] <- "Orden Analisis"
+colnames(parte04)[1] <- "Orden Analisis"
+
+salida <- list(parte01, parte02, parte03, parte04, parte05)
+names(salida) <- names(nuevo)
+
+names(salida[[5]]) <- columnas_seleccionadas
+
+return(salida)
+}
+
+
+RScience.TestNormalidad(base = base,
+                        columnas_seleccionadas = columnas_seleccionadas,
+                        alfa = alfa,
+                        corte = corte)

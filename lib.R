@@ -89,6 +89,7 @@ num2let <- function(n, lets = LETTERS) {
   }
 }
 
+
 let2num <- function(x, lets = LETTERS) {
   base <- length(lets)
   s <- strsplit(x, "")
@@ -146,7 +147,7 @@ EstructuraGeneral <- function(all_columns = NULL,
 
 
   vector_n_original <- nrow(base)
-  vector_n_final <- <- nrow(na.omit(base))
+  vector_n_final <- nrow(na.omit(base))
   vector_na <- vector_n_original
   vector_n_final <-
   cada_sentencia <- rep(NA, length(columnas_seleccionadas))
