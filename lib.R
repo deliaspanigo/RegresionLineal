@@ -1,4 +1,35 @@
 
+Rscience.languages <- function(name = NULL){
+
+  the_languages <- c("EN", "ES", "IT")
+  the_functions <- c("pValueDecision")
+
+  language_functions <- namel(the_functions)
+
+  for(k in 1:length(language_functions)) language_functions[[k]] <- namel(the_languages)
+
+  remove(k)
+
+  # 1) pValueDecision()
+  {
+  set_default <- c("No", "Yes")
+  set_matrix <- as.data.frame(matrix(NA, length(set_default), length(the_languages)))
+  rownames(set_matrix) <- set_default
+  colnames(set_matrix) <- the_languages
+  set_matrix$EN <- c("No", "Yes")
+  set_matrix$ES <- c("No", "Si")
+  set_matrix$IT <- c("No", "Si")
+
+  language_functions[["pValueDecision"]] <- list(set_matrix)
+
+  remove(set_default, set_matrix)
+  }
+
+
+  return(language_functions[[name]])
+
+}
+
 round2 <- function(x, n) {
   posneg <- sign(x)
 
@@ -9,29 +40,43 @@ round2 <- function(x, n) {
   z*posneg
 }
 
-pValorExterno <- function(valor_p = NULL, corte = 0.001){
+pValueAll <- function(pvalue_original = NULL, decimals = 4, limit = 0.001){
 
-  valor_p_externo <- valor_p
-  valor_p_externo[valor_p < corte] <- paste0("<", corte)
+  pvalue <- namel(c("Original", "Rounded", "External"))
+  pvalue[["Original"]] <- pvalue_original
+  pvalue[["Rounded"]] <- round2(pvalue_original, decimals)
+  pvalue[["External"]] <- pValorExterno(valor_p = pvalue$Rounded, corte = limit)
 
-  return(valor_p_externo)
+  valor_p_externo <- pvalue[["Rounded"]]
+  valor_p_externo[pvalue[["Rounded"]] < limit] <- paste0("<", limit)
+
+  pvalue[["External"]] <- valor_p_externo
+
+  return(pvalue)
 }
 
-Decision <- function(valor_p = NULL, alfa = NULL){
 
-  decision <- rep(NA, length(valor_p))
+pValueDecision <- function(pvalue_original = NULL, alpha = NULL, language = "EN"){
 
-  # Si el valor p es menor que alfa
-  decision[valor_p < alfa] <- "Si"
+  # Take specifics language options for 'pValueDecision'
+  language_options <- Rscience.languages(name = "pValueDecision")[[1]]
 
-  # Si el valor p es mayor o igual que alfa
-  decision[valor_p >= alfa] <- "No"
+  # Empty decision
+  decision <- rep(NA, length(pvalue_original))
+
+  # If pvalue >= alpha
+  decision[pvalue_original >= alpha] <- language_options["No", language]
+
+  # If pvalue < alpha
+  decision[pvalue_original < alpha] <- language_options["Yes", language]
+
+
 
   return(decision)
 
 }
 
-ArmadoFrase <- function(decision = NULL, frase_no = NULL, frase_si = NULL){
+ArmadoFrase <- function(decision = NULL, frase_no = NULL, frase_si = NULL, language = "EN"){
 
   # Vector inicial
   frase <- rep(NA, length(decision))
