@@ -10,9 +10,12 @@ all_columns <- colnames(database)
 
 x_var <- colnames(database)[2:ncol(database)]
 y_var <- "mpg"
+performance = "all.in"
+alpha <- 0.05
 
-
-Rscience.LM.OneModel <- function(database = NULL, y_var = NULL, x_var = NULL){
+Rscience.Test.LinearRegresion.OneModel <- function(database = NULL,
+                                                   x_var = NULL,
+                                                   y_var = NULL){
 
   # All columns
   all_columns <- colnames(database)
@@ -107,7 +110,7 @@ Rscience.LM.OneModel <- function(database = NULL, y_var = NULL, x_var = NULL){
 }
 
 
-aver <- Rscience.LM.OneModel(database = database, y_var = y_var, x_var = x_var)
+aver <- Rscience.Test.LinearRegresion.OneModel(database = database, y_var = y_var, x_var = x_var)
 aver
 
 aver$OneModel

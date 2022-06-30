@@ -1,4 +1,7 @@
 
+library(stringi) # https://stackoverflow.com/questions/33949945/replace-multiple-strings-in-one-gsub-or-chartr-statement-in-r
+
+
 Rscience.languages <- function(name = NULL){
 
   the_languages <- c("EN", "ES", "IT")
@@ -146,6 +149,22 @@ let2num <- function(x, lets = LETTERS) {
 namel<-function (vec){
   tmp <-as.list(vec)
   names(tmp) <- as.character(unlist(vec))
+  tmp
+}
+
+#helper function (convert vector to named list)
+namel.na<-function (vec){
+  tmp <- as.list(rep(NA, length(vec)))
+  names(tmp) <- as.character(unlist(vec))
+  tmp
+}
+
+
+
+#helper function (convert vector to named list)
+namel2<-function (vec, names){
+  tmp <-as.list(vec)
+  names(tmp) <- names
   tmp
 }
 
