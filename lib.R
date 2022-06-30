@@ -162,7 +162,10 @@ namel.na<-function (vec){
 
 
 #helper function (convert vector to named list)
-namel2<-function (vec, names){
+namel2<-function (names, vec){
+
+  if(length(vec) == 1) vec <- rep(vec[1], length(names))
+
   tmp <-as.list(vec)
   names(tmp) <- names
   tmp

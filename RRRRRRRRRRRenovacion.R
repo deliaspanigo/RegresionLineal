@@ -180,7 +180,7 @@ Reference.LinearRegresion <- function(x_vars = NULL,
 
 
 
-
+database <- mtcars
 
 x_var <- c("cyl", "hp", "wt")
 y_var <- "mpg"
@@ -329,13 +329,29 @@ names(All_Changes) <- adress
 # Generate.SpecificSentences.RegresionLineal <- function(GS, ces, All_Reference, GeneralChanges, All_Changes) {
 
 
+# Empty Structure
+Empty_Structure <- list()
+
 # Specific Sentences
-SpecificSentences <- namel(names(GS))
+Empty_Structure <- namel(names(GS))
 for(k in names(SpecificSentences)){
-  opt01 <- rep(GS[[k]], ces[k])
-  opt02 <- All_Reference[[k]][,ncol(All_Reference[[k]])]
- SpecificSentences[[k]] <- namel2(opt01, opt02) # list(rep(GS[[k]], ces[k]))
+  opt01 <- All_Reference[[k]][,ncol(All_Reference[[k]])]
+  opt02 <- rep(NA, ces[k])
+  Empty_Structure[[k]] <- namel2(names = opt01, vec = opt02) # list(rep(GS[[k]], ces[k]))
+
+  remove(opt01, opt02)
 }
+
+# New: SpecificSentences
+SpecificSentences <- Empty_Structure
+
+# Load to SpecificSentences from GS
+for(k1 in names(SpecificSentences)) for(k2 in 1:length(SpecificSentences[[k1]])){
+
+  SpecificSentences[[k1]][[k2]] <- GS[[k1]]
+
+}
+
 
 # General Substitution
 for(k1 in 1:length(SpecificSentences)) {
@@ -366,31 +382,36 @@ for(k1 in 1:length(SpecificSentences)) {
 
 
 
-# }
-
 
 # Fusion Sentences (FS)
-FS <- namel(names(SpecificSentences))
-for(k in 1:length(SpecificSentences)) {
-  FS[[k]] <- paste0(REF[[k]][,ncol(REF[[k]])], " <- ", SpecificSentences[[k]])
-  names(FS[[k]]) <- REF[[k]][,ncol(REF[[k]])]
+FS <- SpecificSentences
+for(k1 in names(FS)) for(k2 in 1:length(FS[[k1]])){
+
+  destino <- All_Reference[[k1]][k2, ncol(All_Reference[[k1]])]
+  sentencia <- SpecificSentences[[k1]][[k2]]
+  FS[[k1]][[k2]] <- paste0(destino, " <- ", sentencia)
+
+  remove(destino, sentencia)
 }
 
-code[[4]] <- ""
-for(k1 in 1:length(FS)) for(k2 in 1:length(FS[[k1]]))  code[[4]] <- c(code[[4]], FS[[k1]][k2])
-
-code[[4]] <- paste0(code[[4]], collapse = "\n")
 
 
-ROutput <- namel.na(names(FS))
-for(k1 in 1:length(FS)) ROutput[[k1]] <- namel.na(names(FS[[k1]]))
+internal_code <- namel2(names(FS), "")
+for(k1 in names(FS)) for(k2 in 1:length(FS[[k1]]))  internal_code[[k1]] <- paste0(unlist(FS[[k1]]), collapse = "\n")
+for(k1 in names(internal_code)) internal_code[[k1]] <- paste0(paste0("# ", k1), "\n", internal_code[[k1]], "\n\n", collapse = "")
 
-for(k1 in 1:length(ROutput)) for(k2 in 1:length(ROutput[[k1]])) {
+code[[4]] <- paste0(internal_code, collapse = "\n")
+
+
+ROutput <- Empty_Structure
+for(k1 in names(FS)) for(k2 in names(FS[[k1]])) {
 
   # Esto es la ejecucion de cada sentencia
   # Al evaluar la sentencia se ejecuta el test y todo se guarda en
   # un objeto de nombre previamente definido
-  eval(parse(text = FS[[k1]][k2]))
+  obj_name <- strsplit(FS[[k1]][[k2]], " <- ")[[1]][1]
+
+  eval(parse(text = FS[[k1]][[k2]]))
 
   # Creamos dos objetos que nos serviran, por un lado para asignar el
   # nuevo objeto a la lista de salidas de R...
@@ -398,11 +419,12 @@ for(k1 in 1:length(ROutput)) for(k2 in 1:length(ROutput[[k1]])) {
   # es eliminado.
   # La idea de esto es que el script ejecute tal cual cada sentnecia, y ver asi
   # que todo funciona.
- aver01 <- paste0("ROutput[[",k1, "]][[", k2, "]] <- names(FS[[", k1, "]])[", k2, "]", collapse = "")
- aver02 <- paste0("remove(", names(FS[[k1]])[k2], ")")
+  ROutput[[k1]][[k2]] <- eval(parse(text = obj_name))
 
+ aver01 <- paste0("remove(", obj_name, ")")
  eval(parse(text = aver01))
- eval(parse(text = aver02))
+
+ remove(obj_name)
 
 }
 
@@ -410,4 +432,22 @@ for(k1 in 1:length(ROutput)) for(k2 in 1:length(ROutput[[k1]])) {
 
 #            eval(parse(text = code[[2]]))
 
-todo <- unlist(code)
+the_code <- unlist(code)
+WhoamI <- "Rsience.LinearRegresion()"
+
+the_exit <- list(ROutput, the_code, WhoamI)
+
+return(the_exit)
+
+
+
+
+aver <- MegaDAVID(database = database,
+          x_var = x_var,
+          y_var = y_var,
+          decimals = decimals,
+          alpha = alpha,
+          confidence = confidence)
+
+
+aver[[2]]

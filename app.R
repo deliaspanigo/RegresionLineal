@@ -38,20 +38,23 @@ ui <- dashboardPage(
              uiOutput("settings.alpha")
       )
     ),
+    br(), br(),
+    uiOutput("universo")
 
 
 
-    fluidRow(
+    # fluidRow(
+    #
+    #   # Esta es X
+    #   box(plotOutput("plot1", height = 250)),
+    #   box(
+    #     title = "Controls",
+    #     sliderInput("slider", "Number of observations:", 1, 100, 50)
+    #   )
+    # ),
 
-      # Esta es X
-      box(plotOutput("plot1", height = 250)),
-      box(
-        title = "Controls",
-        sliderInput("slider", "Number of observations:", 1, 100, 50)
-      )
-    ),
-    verbatimTextOutput("texto01")
-  )
+
+)
 )
 
 server <- function(input, output) {
@@ -64,6 +67,48 @@ server <- function(input, output) {
     inData <- input$filedata
     if (is.null(inData)){ return(NULL) }
     mydata <- read.csv(inData$datapath, header = TRUE, sep=",")
+
+    mydata <- mtcars
+  })
+
+
+  output$universo <- renderUI({
+
+    # Control solo de Data
+    if(is.null(data())) return(NULL)
+
+
+    tabsetPanel(
+      tabPanel("Tablas de Referencia",
+               h2("Referencia Normalidad"),
+               tableOutput("table01"), br(),
+               h2("Referencia Correlación Pearson"),
+               tableOutput("table02"), br(),
+               h2("Referencia Correlación Spearman"),
+               tableOutput("table03"), br(),
+               h2("Referencia Regresión Lineal"),
+               tableOutput("table04")
+               ),
+      tabPanel("Codigo",
+                        verbatimTextOutput("texto01"),
+                        tags$head(tags$style(HTML("
+                            #texto01 {
+                              font-size: 15px;
+                            }
+                            ")))
+               ),
+      tabPanel("ROutputs",
+                        verbatimTextOutput("texto02"),
+                        tags$head(tags$style(HTML("
+                            #texto02 {
+                              font-size: 15px;
+                            }
+                            "))))
+      )
+
+
+
+
   })
 
   # Seleccion de Variables X e Y
@@ -76,7 +121,7 @@ server <- function(input, output) {
     selectInput('variable_x',
                 'Variable Regresora/Independiente (X)',
                 choices = colnames(data()),
-                selected = colnames(data())[2],
+                selected = colnames(data())[c(2,3)],
                 multiple = TRUE)
   })
 
@@ -118,12 +163,12 @@ server <- function(input, output) {
     if(is.null(data())) return(NULL)
 
 
-             numericInput(inputId = "decimals",
-                          label = "Decimals",
-                          value = 2,
+             numericInput(inputId = "alpha",
+                          label = "Alfa",
+                          value = 0.05,
                           min = 0,
-                          max = 8,
-                          step = 1
+                          max = 1,
+                          step = 0.01
              )
 
   })
@@ -134,18 +179,38 @@ server <- function(input, output) {
     hist(data)
   })
 
-  output$texto01 <- renderText ({
+  all_in_one <- reactive({
 
-    database <- mtcars
-    x_var <- c("cyl", "hp", "wt")
-    y_var <- "mpg"
+    # Control solo de Data
+    if(is.null(data())) return(NULL)
+    if(is.null(input$variable_y)) return(NULL)
+    if(is.null(input$variable_x)) return(NULL)
+    if(is.null(input$variable_y)) return(NULL)
+    if(is.null(input$decimals)) return(NULL)
+    if(is.null(input$alpha)) return(NULL)
 
-    # Global Options
-    decimals <- 4
-    alpha <- 0.05
+    database <- data()
+    # x_var <- colnames(database)[c(2,4)]
+    # y_var <- colnames(database)[c(1)]
+
+    y_var <- input$variable_y
+    x_var <- input$variable_x
+    decimals <- input$decimals
+    alpha <- input$alpha
     confidence <- Rscience.Confidence(alpha = alpha)
 
-    performance <- "all.in"
+    # x_var <- input$variable_x
+    # y_var <- input$variable_y
+
+    # database <- mtcars
+    # x_var <- c("cyl", "hp", "wt")
+    # y_var <- "mpg"
+
+    # Global Options
+    # decimals <- input$decimals
+    # alpha <- 0.05
+    # confidence <- Rscience.Confidence(alpha = alpha)
+
 
     todo <- MegaDAVID(database = database,
                       x_var = x_var,
@@ -153,16 +218,61 @@ server <- function(input, output) {
                       decimals = decimals,
                       alpha = alpha,
                       confidence = confidence)
-    todo
-  #  paste0("LALAL", "ASDA", collapse = "\n")
-    c(
-      # paste0(code[[1]], collapse = "\n"),
-      # paste0(code[[2]], collapse = "\n"),
-      # paste0(code[[3]], collapse = "\n"),
-      # paste0(code[[4]], collapse = "\n")
+
+
       todo
-    )
   })
+
+  observe(output$texto01 <- renderText ({
+
+   all_in_one()$the_code
+
+
+
+  }))
+
+
+
+  observe(output$texto02 <- renderPrint ({
+
+  #  all_in_one()$ROutput[["Normal"]][[1]]
+    all_in_one()$ROutput
+
+
+  }))
+
+  observe(output$table01 <- renderTable ({
+
+    #  all_in_one()$ROutput[["Normal"]][[1]]
+    all_in_one()$All_Reference[["Normal"]]
+
+
+  }))
+
+
+  observe(output$table02 <- renderTable ({
+
+    #  all_in_one()$ROutput[["Normal"]][[1]]
+    all_in_one()$All_Reference[["CorPearson"]]
+
+
+  }))
+
+  observe(output$table03 <- renderTable ({
+
+    #  all_in_one()$ROutput[["Normal"]][[1]]
+    all_in_one()$All_Reference[["CorSpearman"]]
+
+
+  }))
+
+  observe(output$table04 <- renderTable ({
+
+    #  all_in_one()$ROutput[["Normal"]][[1]]
+    all_in_one()$All_Reference[["LinearRegresion"]]
+
+
+  }))
 
 }
 
